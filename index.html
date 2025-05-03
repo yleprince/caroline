@@ -1,0 +1,88 @@
+<html data-theme="light" lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Wedding Invitation</title>
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+        <link rel="apple-touch-icon" sizes="180x180" href="https://d1tntvpcrzvon2.cloudfront.net/static-assets/images/favicon-rebrand/apple-touch-icon.png"/><link rel="icon" type="image/png" href="https://d1tntvpcrzvon2.cloudfront.net/static-assets/images/favicon-rebrand/android-chrome-192x192.png" sizes="192x192"/><link rel="icon" type="image/png" href="https://d1tntvpcrzvon2.cloudfront.net/static-assets/images/favicon-rebrand/favicon-32x32.png" sizes="32x32"/><link rel="icon" type="image/png" href="https://d1tntvpcrzvon2.cloudfront.net/static-assets/images/favicon-rebrand/favicon-16x16.png" sizes="16x16"/>
+    </head>
+    <body class="snap-y snap-proximity">
+        <div
+            class="snap-center hero min-h-screen"
+            style="background-image: url(https://yrieix-media.s3.eu-west-3.amazonaws.com/wed/vertical_500.jpg);"
+            >
+            <div class="hero-overlay opacity-30"></div>
+            <div class="hero-content text-neutral-content text-center">
+                <div class="max-w-md">
+                    <div class="absolute inset-0 bg-opacity-30 flex items-end justify-center p-16">
+                        <div class="text-5xl text-white font-bold animate-bounce flex justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="size-12">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="snap-center min-h-screen">
+            <div class="grid place-items-center h-screen relative">
+                <div class="max-w-md mb-5 flex flex-col z-10">
+                    <h2 class="text-5xl font-semibold text-primary">On se marie !</h2>
+                    <h2 class="text-2xl font-semibold text-secondary">Nous sommes impatients de célébrer notre mariage civil avec vous !</h2>
+                    <p class="mt-4 text-xl">Ci-dessous les premiers détails :</p>
+                    <div class="m-6 bg-white shadow-2xl rounded-lg p-4">
+                        <p class="text-lg font-semibold">📅 Date: <span class="font-normal">20 Septembre 2025</span></p>
+                        <p class="text-lg font-semibold">📍 Lieu: <span class="font-normal">
+                            <a href="https://maps.app.goo.gl/U6kxuHDrbM8gxLmWA _target="">Mairie de Bois-Colombes</a>
+                        </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="absolute bottom-0 bg-opacity-30 flex items-end justify-center p-16">
+                    <div class="text-5xl font-bold animate-bounce flex justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="size-12">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+    <script>
+        const end = Date.now() + 3 * 1000;
+
+        // go Buckeyes!
+            const colors = ["FFC0CB", "FF69B4", "FF1493", "C71585", "422ad5", "FFF"];
+
+        (function frame() {
+            confetti({
+                particleCount: 2,
+                angle: 60,
+                spread: 3,
+                origin: { x: 0 },
+                colors: colors,
+                shapes: ["heart"],
+                scalar: 3,
+
+            });
+
+            confetti({
+                particleCount: 2,
+                angle: 120,
+                spread: 3,
+                origin: { x: 1 },
+                colors: colors,
+                shapes: ["heart"],
+                scalar: 3,
+            });
+
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        })();
+    </script>
+</html>
