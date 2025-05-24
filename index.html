@@ -164,20 +164,37 @@
     </body>
     
     <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
-    <script src="firebase-config.js"></script>
+    
+    <!-- Firebase App -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
-        import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js';
 
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "__FIREBASE_API_KEY__",
+            authDomain: "__FIREBASE_AUTH_DOMAIN__",
+            projectId: "__FIREBASE_PROJECT_ID__",
+            storageBucket: "__FIREBASE_STORAGE_BUCKET__",
+            messagingSenderId: "__FIREBASE_MESSAGING_SENDER_ID__",
+            appId: "__FIREBASE_APP_ID__",
+            measurementId: "__FIREBASE_MEASUREMENT_ID__"
+        };
+
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Make auth, RecaptchaVerifier, and other necessary functions available globally
         window.auth = auth;
         window.db = db;
+        window.RecaptchaVerifier = RecaptchaVerifier;
+        window.signInWithPhoneNumber = signInWithPhoneNumber;
     </script>
+
     <script src="app.js"></script>
 </html>

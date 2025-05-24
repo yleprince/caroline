@@ -33,6 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let confirmationResult = null;
     const auth = window.auth;
     const db = window.db;
+    const RecaptchaVerifier = window.RecaptchaVerifier;
+    const signInWithPhoneNumber = window.signInWithPhoneNumber;
 
     // Get DOM elements
     const registrationForm = document.getElementById('registration_form');
@@ -47,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorMessage = document.getElementById('error_message');
 
     // Initialize reCAPTCHA verifier
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         'size': 'normal',
         'callback': (response) => {
             sendCodeBtn.disabled = false;
@@ -64,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const fullPhoneNumber = `${phonePrefix.value}${phoneNumber.value.replace(/\s/g, '')}`;
         
         try {
-            confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, window.recaptchaVerifier);
+            confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, recaptchaVerifier);
             
             // Show verification code input
             verificationSection.classList.remove('hidden');
