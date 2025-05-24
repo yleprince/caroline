@@ -1,0 +1,10 @@
+{
+  "name": "wedding-invitation",
+  "version": "1.0.0",
+  "description": "Wedding invitation website",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+} 

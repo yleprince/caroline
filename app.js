@@ -28,6 +28,80 @@ const colors = ["fcb700", "ff637d", "fff"];
     }
 })();
 
+// Firebase Authentication and Database
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Firebase services
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    // Registration form handling
+    const registrationForm = document.getElementById('registration_form');
+    const errorMessage = document.getElementById('error_message');
+
+    registrationForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Get form values
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const birthDate = document.getElementById('birthDate').value;
+        const attendCeremony = document.getElementById('attendCeremony').checked;
+        const attendDinner = document.getElementById('attendDinner').checked;
+
+        try {
+            // Create user account
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+
+            // Store additional user data in Firestore
+            await db.collection('guests').doc(user.uid).set({
+                firstName: firstName,
+                lastName: lastName,
+                birthDate: birthDate,
+                attendCeremony: attendCeremony,
+                attendDinner: attendDinner,
+                email: email,
+                registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Close modal and show success message
+            registration_modal.close();
+            showNotification('Inscription réussie !', 'success');
+            
+        } catch (error) {
+            console.error('Error:', error);
+            errorMessage.textContent = getErrorMessage(error.code);
+            errorMessage.classList.remove('hidden');
+        }
+    });
+
+    // Helper function to show notifications
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} fixed top-4 right-4 z-50 max-w-sm`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+
+    // Helper function to get error messages in French
+    function getErrorMessage(errorCode) {
+        const errorMessages = {
+            'auth/email-already-in-use': 'Cette adresse email est déjà utilisée.',
+            'auth/invalid-email': 'Adresse email invalide.',
+            'auth/operation-not-allowed': 'Opération non autorisée.',
+            'auth/weak-password': 'Le mot de passe doit contenir au moins 6 caractères.',
+            'default': 'Une erreur est survenue. Veuillez réessayer.'
+        };
+        return errorMessages[errorCode] || errorMessages.default;
+    }
+});
+
 // Smooth scrolling functionality
 document.addEventListener('DOMContentLoaded', function() {
     const scrollButtons = document.querySelectorAll('.scroll-button');
