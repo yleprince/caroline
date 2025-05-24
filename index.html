@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html data-theme="winter" lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Wedding Invitation</title>
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+        <link rel="apple-touch-icon" sizes="180x180" href="https://d1tntvpcrzvon2.cloudfront.net/static-assets/images/favicon-rebrand/apple-touch-icon.png"/>
+        <link rel="icon" type="image/png" href="https://d1tntvpcrzvon2.cloudfront.net/static-assets/images/favicon-rebrand/android-chrome-192x192.png" sizes="192x192"/>
+        <link rel="icon" type="image/png" href="https://d1tntvpcrzvon2.cloudfront.net/static-assets/images/favicon-rebrand/favicon-32x32.png" sizes="32x32"/>
+        <link rel="icon" type="image/png" href="https://d1tntvpcrzvon2.cloudfront.net/static-assets/images/favicon-rebrand/favicon-16x16.png" sizes="16x16"/>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body class="overflow-x-hidden">
+        <!-- Registration Modal -->
+        <dialog id="registration_modal" class="modal">
+            <div class="modal-box">
+                <h3 class="font-bold text-lg mb-4">Inscription</h3>
+                <form id="registration_form" class="space-y-4">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Numéro de téléphone</span>
+                        </label>
+                        <div class="join">
+                            <select class="select select-bordered join-item" id="phonePrefix">
+                                <option value="+33">🇫🇷 +33</option>
+                                <option value="+32">🇧🇪 +32</option>
+                                <option value="+41">🇨🇭 +41</option>
+                            </select>
+                            <input type="tel" id="phoneNumber" required class="input input-bordered join-item flex-1" placeholder="6 12 34 56 78" />
+                        </div>
+                    </div>
+                    
+                    <div id="recaptcha-container" class="flex justify-center"></div>
+
+                    <div id="verification-section" class="hidden">
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Code de vérification</span>
+                            </label>
+                            <input type="text" id="verificationCode" class="input input-bordered" placeholder="123456" />
+                        </div>
+                    </div>
+
+                    <div id="user-info-section" class="hidden">
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Prénom</span>
+                            </label>
+                            <input type="text" id="firstName" required class="input input-bordered" />
+                        </div>
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Nom</span>
+                            </label>
+                            <input type="text" id="lastName" required class="input input-bordered" />
+                        </div>
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Date de naissance</span>
+                            </label>
+                            <input type="date" id="birthDate" required class="input input-bordered" />
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer">
+                                <span class="label-text">Je serai présent(e) à la cérémonie</span>
+                                <input type="checkbox" id="attendCeremony" class="checkbox" />
+                            </label>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer">
+                                <span class="label-text">Je serai présent(e) au dîner</span>
+                                <input type="checkbox" id="attendDinner" class="checkbox" />
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-error hidden" id="error_message">
+                        <!-- Error message will be inserted here -->
+                    </div>
+
+                    <div class="modal-action">
+                        <button type="button" id="sendCode" class="btn btn-primary">Envoyer le code</button>
+                        <button type="button" id="verifyCode" class="btn btn-primary hidden">Vérifier le code</button>
+                        <button type="submit" id="submitForm" class="btn btn-primary hidden">S'inscrire</button>
+                        <button type="button" class="btn" onclick="registration_modal.close()">Fermer</button>
+                    </div>
+                </form>
+            </div>
+        </dialog>
+
+        <div class="snap-y snap-mandatory h-screen w-screen" id="container">
+            <div
+                class="snap-center hero min-h-screen w-full section"
+                id="hero-section"
+                style="background-image: url(https://yrieix-media.s3.eu-west-3.amazonaws.com/wed/vertical_500.jpg);"
+                >
+                <div class="hero-overlay bg-opacity-30"></div>
+                <div class="hero-content text-neutral-content text-center">
+                    <div class="max-w-md px-4">
+                        <div class="absolute inset-0 bg-opacity-30 flex items-end justify-center p-8 sm:p-16">
+                            <button class="scroll-button text-3xl sm:text-5xl text-white font-bold animate-bounce flex justify-center" data-target="details-section">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3.5" stroke="currentColor" class="w-8 h-8 sm:w-12 sm:h-12 arrow-next">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="snap-center min-h-screen w-full section" id="details-section">
+                <div class="grid place-items-center h-screen relative">
+                    <div class="w-full max-w-md mb-5 px-4 sm:px-6 flex flex-col space-y-4 z-10">
+                        <h1 class="text-4xl sm:text-7xl md:text-8xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-orange-500 font-extrabold py-4">On se marie !</h1>
+
+                        <h2 class="text-lg sm:text-xl px-2">Nous sommes impatients de célébrer notre mariage civil avec vous 🎉</h2>
+                        <div class="mx-2 sm:m-6 bg-white shadow-2xl rounded-lg p-4">
+                            <p class="text-base sm:text-lg font-semibold">📅 Date: <span class="font-normal">20 Septembre 2025</span></p>
+                            <p class="text-base sm:text-lg font-semibold">📍 Lieu: <span class="font-normal">
+                                <a href="https://maps.app.goo.gl/U6kxuHDrbM8gxLmWA" target="_blank" class="hover:text-pink-500 transition-colors">Mairie de Bois-Colombes</a>
+                            </span>
+                            </p>
+                        </div>
+                        <a href="#" onclick="registration_modal.showModal()" class="btn border-0 mx-2 sm:m-4 shadow-xl bg-gradient-to-r from-pink-500 to-orange-500 text-white text-lg sm:text-xl hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                            </svg>
+                            Inscription
+                        </a>
+                    </div>
+                    <div class="absolute bottom-0 bg-opacity-30 flex items-end justify-center p-8 sm:p-16">
+                        <button class="scroll-button text-3xl sm:text-5xl font-bold animate-bounce flex justify-center text-pink-500" data-target="planning-section">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3.5" stroke="currentColor" class="w-8 h-8 sm:w-12 sm:h-12 arrow-next">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="snap-center min-h-screen w-full section" id="planning-section">
+                <div class="grid place-items-center h-screen relative">
+                    <div class="w-full max-w-md mb-5 px-4 sm:px-6 flex flex-col space-y-4 z-10">
+                        <h1 class="text-3xl sm:text-7xl md:text-8xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-orange-500 font-extrabold py-4">Planning</h1>
+
+                        <div class="mx-2 sm:m-6 bg-white shadow-2xl rounded-lg p-4">
+                            <p class="text-base sm:text-lg font-semibold mb-2">💍 14h <span class="font-normal">Célébration à la mairie</span></p>
+                            <p class="text-base sm:text-lg font-semibold mb-2">🥂 15h <span class="font-normal">Rafraîchissements & jeux</span></p>
+                            <p class="text-base sm:text-lg font-semibold mb-2">🍴 19h30 <span class="font-normal">Diner au restaurant</span></p>
+                            <p class="text-base sm:text-lg font-semibold">💃🏻 20h30 <span class="font-normal">Soirée dansante</span></p>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-0 bg-opacity-30 flex items-end justify-center p-8 sm:p-16">
+                        <button class="scroll-button text-3xl sm:text-5xl font-bold animate-bounce flex justify-center text-pink-500" data-target="hero-section">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3.5" stroke="currentColor" class="w-8 h-8 sm:w-12 sm:h-12 arrow-top">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+    <script src="firebase-config.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
+        import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.auth = auth;
+        window.db = db;
+    </script>
+    <script src="app.js"></script>
+</html>
