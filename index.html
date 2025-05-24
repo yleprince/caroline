@@ -21,51 +21,70 @@
                 <form id="registration_form" class="space-y-4">
                     <div class="form-control">
                         <label class="label">
-                            <span class="label-text">Email</span>
+                            <span class="label-text">Numéro de téléphone</span>
                         </label>
-                        <input type="email" id="email" required class="input input-bordered" />
+                        <div class="join">
+                            <select class="select select-bordered join-item" id="phonePrefix">
+                                <option value="+33">🇫🇷 +33</option>
+                                <option value="+32">🇧🇪 +32</option>
+                                <option value="+41">🇨🇭 +41</option>
+                            </select>
+                            <input type="tel" id="phoneNumber" required class="input input-bordered join-item flex-1" placeholder="6 12 34 56 78" />
+                        </div>
                     </div>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Mot de passe</span>
-                        </label>
-                        <input type="password" id="password" required class="input input-bordered" />
+                    
+                    <div id="recaptcha-container" class="flex justify-center"></div>
+
+                    <div id="verification-section" class="hidden">
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Code de vérification</span>
+                            </label>
+                            <input type="text" id="verificationCode" class="input input-bordered" placeholder="123456" />
+                        </div>
                     </div>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Prénom</span>
-                        </label>
-                        <input type="text" id="firstName" required class="input input-bordered" />
+
+                    <div id="user-info-section" class="hidden">
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Prénom</span>
+                            </label>
+                            <input type="text" id="firstName" required class="input input-bordered" />
+                        </div>
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Nom</span>
+                            </label>
+                            <input type="text" id="lastName" required class="input input-bordered" />
+                        </div>
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Date de naissance</span>
+                            </label>
+                            <input type="date" id="birthDate" required class="input input-bordered" />
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer">
+                                <span class="label-text">Je serai présent(e) à la cérémonie</span>
+                                <input type="checkbox" id="attendCeremony" class="checkbox" />
+                            </label>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer">
+                                <span class="label-text">Je serai présent(e) au dîner</span>
+                                <input type="checkbox" id="attendDinner" class="checkbox" />
+                            </label>
+                        </div>
                     </div>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Nom</span>
-                        </label>
-                        <input type="text" id="lastName" required class="input input-bordered" />
-                    </div>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Date de naissance</span>
-                        </label>
-                        <input type="date" id="birthDate" required class="input input-bordered" />
-                    </div>
-                    <div class="form-control">
-                        <label class="label cursor-pointer">
-                            <span class="label-text">Je serai présent(e) à la cérémonie</span>
-                            <input type="checkbox" id="attendCeremony" class="checkbox" />
-                        </label>
-                    </div>
-                    <div class="form-control">
-                        <label class="label cursor-pointer">
-                            <span class="label-text">Je serai présent(e) au dîner</span>
-                            <input type="checkbox" id="attendDinner" class="checkbox" />
-                        </label>
-                    </div>
+
                     <div class="alert alert-error hidden" id="error_message">
                         <!-- Error message will be inserted here -->
                     </div>
+
                     <div class="modal-action">
-                        <button type="submit" class="btn btn-primary">S'inscrire</button>
+                        <button type="button" id="sendCode" class="btn btn-primary">Envoyer le code</button>
+                        <button type="button" id="verifyCode" class="btn btn-primary hidden">Vérifier le code</button>
+                        <button type="submit" id="submitForm" class="btn btn-primary hidden">S'inscrire</button>
                         <button type="button" class="btn" onclick="registration_modal.close()">Fermer</button>
                     </div>
                 </form>
@@ -147,25 +166,18 @@
     <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
     <script src="firebase-config.js"></script>
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-      
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
-      
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        
         const analytics = getAnalytics(app);
-      </script>
-  
-    <!-- Firebase Authentication -->
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth.js"></script>
-    <!-- Firebase Firestore -->
-    
-    <script src="app.js"></script>  
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.auth = auth;
+        window.db = db;
+    </script>
+    <script src="app.js"></script>
 </html>

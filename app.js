@@ -30,48 +30,107 @@ const colors = ["fcb700", "ff637d", "fff"];
 
 // Firebase Authentication and Database
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Firebase services
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    
-    // Registration form handling
+    let confirmationResult = null;
+    const auth = window.auth;
+    const db = window.db;
+
+    // Get DOM elements
     const registrationForm = document.getElementById('registration_form');
+    const phonePrefix = document.getElementById('phonePrefix');
+    const phoneNumber = document.getElementById('phoneNumber');
+    const verificationSection = document.getElementById('verification-section');
+    const userInfoSection = document.getElementById('user-info-section');
+    const verificationCode = document.getElementById('verificationCode');
+    const sendCodeBtn = document.getElementById('sendCode');
+    const verifyCodeBtn = document.getElementById('verifyCode');
+    const submitFormBtn = document.getElementById('submitForm');
     const errorMessage = document.getElementById('error_message');
 
+    // Initialize reCAPTCHA verifier
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'normal',
+        'callback': (response) => {
+            sendCodeBtn.disabled = false;
+        },
+        'expired-callback': () => {
+            sendCodeBtn.disabled = true;
+            errorMessage.textContent = 'Le CAPTCHA a expiré. Veuillez réessayer.';
+            errorMessage.classList.remove('hidden');
+        }
+    });
+
+    // Send verification code
+    sendCodeBtn.addEventListener('click', async () => {
+        const fullPhoneNumber = `${phonePrefix.value}${phoneNumber.value.replace(/\s/g, '')}`;
+        
+        try {
+            confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, window.recaptchaVerifier);
+            
+            // Show verification code input
+            verificationSection.classList.remove('hidden');
+            verifyCodeBtn.classList.remove('hidden');
+            sendCodeBtn.classList.add('hidden');
+            
+            // Hide error message if shown
+            errorMessage.classList.add('hidden');
+        } catch (error) {
+            console.error('Error sending code:', error);
+            errorMessage.textContent = getErrorMessage(error.code);
+            errorMessage.classList.remove('hidden');
+        }
+    });
+
+    // Verify code
+    verifyCodeBtn.addEventListener('click', async () => {
+        const code = verificationCode.value;
+        
+        try {
+            const result = await confirmationResult.confirm(code);
+            
+            // Show user info form
+            userInfoSection.classList.remove('hidden');
+            submitFormBtn.classList.remove('hidden');
+            verifyCodeBtn.classList.add('hidden');
+            
+            // Hide error message if shown
+            errorMessage.classList.add('hidden');
+        } catch (error) {
+            console.error('Error verifying code:', error);
+            errorMessage.textContent = getErrorMessage(error.code);
+            errorMessage.classList.remove('hidden');
+        }
+    });
+
+    // Handle form submission
     registrationForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Get form values
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const firstName = document.getElementById('firstName').value;
-        const lastName = document.getElementById('lastName').value;
-        const birthDate = document.getElementById('birthDate').value;
-        const attendCeremony = document.getElementById('attendCeremony').checked;
-        const attendDinner = document.getElementById('attendDinner').checked;
+        if (!auth.currentUser) {
+            errorMessage.textContent = 'Veuillez d\'abord vérifier votre numéro de téléphone.';
+            errorMessage.classList.remove('hidden');
+            return;
+        }
+
+        const userData = {
+            firstName: document.getElementById('firstName').value,
+            lastName: document.getElementById('lastName').value,
+            birthDate: document.getElementById('birthDate').value,
+            attendCeremony: document.getElementById('attendCeremony').checked,
+            attendDinner: document.getElementById('attendDinner').checked,
+            phoneNumber: `${phonePrefix.value}${phoneNumber.value.replace(/\s/g, '')}`,
+            registeredAt: new Date(),
+        };
 
         try {
-            // Create user account
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            const user = userCredential.user;
-
-            // Store additional user data in Firestore
-            await db.collection('guests').doc(user.uid).set({
-                firstName: firstName,
-                lastName: lastName,
-                birthDate: birthDate,
-                attendCeremony: attendCeremony,
-                attendDinner: attendDinner,
-                email: email,
-                registeredAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
+            // Store user data in Firestore
+            await db.collection('guests').doc(auth.currentUser.uid).set(userData);
+            
             // Close modal and show success message
             registration_modal.close();
             showNotification('Inscription réussie !', 'success');
             
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error saving user data:', error);
             errorMessage.textContent = getErrorMessage(error.code);
             errorMessage.classList.remove('hidden');
         }
@@ -92,10 +151,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Helper function to get error messages in French
     function getErrorMessage(errorCode) {
         const errorMessages = {
-            'auth/email-already-in-use': 'Cette adresse email est déjà utilisée.',
-            'auth/invalid-email': 'Adresse email invalide.',
-            'auth/operation-not-allowed': 'Opération non autorisée.',
-            'auth/weak-password': 'Le mot de passe doit contenir au moins 6 caractères.',
+            'auth/invalid-phone-number': 'Numéro de téléphone invalide.',
+            'auth/code-expired': 'Le code de vérification a expiré.',
+            'auth/invalid-verification-code': 'Code de vérification invalide.',
+            'auth/too-many-requests': 'Trop de tentatives. Veuillez réessayer plus tard.',
+            'auth/quota-exceeded': 'Quota dépassé. Veuillez réessayer plus tard.',
             'default': 'Une erreur est survenue. Veuillez réessayer.'
         };
         return errorMessages[errorCode] || errorMessages.default;
@@ -132,7 +192,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Detect scroll speed and direction
     let lastScrollY = window.scrollY;
-    let scrollDirection = 0;
     let scrollSpeed = 0;
 
     function updateScrollMetrics() {
