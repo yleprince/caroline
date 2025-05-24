@@ -29,11 +29,16 @@ const colors = ["fcb700", "ff637d", "fff"];
 })();
 
 // Firebase Authentication and Database
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     let confirmationResult = null;
+    
+    // Wait for Firebase Auth to be initialized
+    while (!window.auth || !window.RecaptchaVerifier) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
     const auth = window.auth;
     const db = window.db;
-    const RecaptchaVerifier = window.RecaptchaVerifier;
     const signInWithPhoneNumber = window.signInWithPhoneNumber;
 
     // Get DOM elements
@@ -49,38 +54,48 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorMessage = document.getElementById('error_message');
 
     // Initialize reCAPTCHA verifier
-    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'normal',
-        'callback': (response) => {
-            sendCodeBtn.disabled = false;
-        },
-        'expired-callback': () => {
-            sendCodeBtn.disabled = true;
-            errorMessage.textContent = 'Le CAPTCHA a expiré. Veuillez réessayer.';
-            errorMessage.classList.remove('hidden');
-        }
-    });
+    try {
+        const recaptchaVerifier = new window.RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'normal',
+            'callback': (response) => {
+                sendCodeBtn.disabled = false;
+            },
+            'expired-callback': () => {
+                sendCodeBtn.disabled = true;
+                errorMessage.textContent = 'Le CAPTCHA a expiré. Veuillez réessayer.';
+                errorMessage.classList.remove('hidden');
+            }
+        });
 
-    // Send verification code
-    sendCodeBtn.addEventListener('click', async () => {
-        const fullPhoneNumber = `${phonePrefix.value}${phoneNumber.value.replace(/\s/g, '')}`;
+        // Render the reCAPTCHA widget
+        await recaptchaVerifier.render();
         
-        try {
-            confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, recaptchaVerifier);
+        // Send verification code
+        sendCodeBtn.addEventListener('click', async () => {
+            const fullPhoneNumber = `${phonePrefix.value}${phoneNumber.value.replace(/\s/g, '')}`;
             
-            // Show verification code input
-            verificationSection.classList.remove('hidden');
-            verifyCodeBtn.classList.remove('hidden');
-            sendCodeBtn.classList.add('hidden');
-            
-            // Hide error message if shown
-            errorMessage.classList.add('hidden');
-        } catch (error) {
-            console.error('Error sending code:', error);
-            errorMessage.textContent = getErrorMessage(error.code);
-            errorMessage.classList.remove('hidden');
-        }
-    });
+            try {
+                confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, recaptchaVerifier);
+                
+                // Show verification code input
+                verificationSection.classList.remove('hidden');
+                verifyCodeBtn.classList.remove('hidden');
+                sendCodeBtn.classList.add('hidden');
+                
+                // Hide error message if shown
+                errorMessage.classList.add('hidden');
+            } catch (error) {
+                console.error('Error sending code:', error);
+                errorMessage.textContent = getErrorMessage(error.code);
+                errorMessage.classList.remove('hidden');
+            }
+        });
+
+    } catch (error) {
+        console.error('Error initializing reCAPTCHA:', error);
+        errorMessage.textContent = 'Erreur lors de l\'initialisation du CAPTCHA. Veuillez réessayer.';
+        errorMessage.classList.remove('hidden');
+    }
 
     // Verify code
     verifyCodeBtn.addEventListener('click', async () => {
