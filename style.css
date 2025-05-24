@@ -1,0 +1,23 @@
+@media (max-width: 640px) {
+    .hero {
+        background-position: center;
+        background-size: cover;
+    }
+}
+
+.scroll-button {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.scroll-button:hover {
+    transform: scale(1.1);
+}
+
+.section {
+    scroll-snap-align: start;
+}
+
+html {
+    scroll-behavior: smooth;
+} 
